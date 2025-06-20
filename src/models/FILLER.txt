@@ -1,0 +1,3 @@
+Depends on how we approach this, 
+but as of right now, we seem to be headed in a 
+post gres route, so lets leave this folder in. 
