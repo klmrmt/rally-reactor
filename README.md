@@ -8,14 +8,14 @@ Backend API service for Rally.
 
 ### Requirements:
 
-- **Node v23.11.1**
+- **Node v24.3.0**
 - **NVM** (Node Version Manager)
 
 ### Steps:
 
 ```bash
-nvm install 23.11.1
-nvm use 23.11.1
+nvm install 24.3.0
+nvm use 24.3.0
 
 npm install
 npm run build
