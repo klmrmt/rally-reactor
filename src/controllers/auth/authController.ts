@@ -1,29 +1,90 @@
 import { Request, Response } from "express";
+import {
+  sendVerificationCode,
+  validateVerificationCode,
+} from "../../auth/twilio/twilio";
+import {
+  AuthenticationResponse,
+  RequestResponse,
+} from "../../utils/apiResponse";
+import { generateToken } from "../../auth/jwt/jwt";
+import {
+  validateMFACode,
+  validatePhoneNumber,
+} from "../../utils/verifyAuthRequests";
 
-export const createAndSendMFACode = (req: Request, res: Response) => {
+// Controller to create and send MFA code via SMS
+export const sendOTP = async (req: Request, res: Response) => {
   const { phoneNumber } = req.body || {};
-  if (!phoneNumber) {
-    res.status(400).json({ message: "Phone number is required" });
+  if (!validatePhoneNumber(phoneNumber)) {
+    RequestResponse(
+      res,
+      400,
+      false,
+      "Invalid phone number format or phone number"
+    );
     return;
   }
-  // Simulate sending an MFA code
-  const mfaCode = Math.floor(100000 + Math.random() * 900000).toString();
-  res.status(200).json({
-    message: "MFA code sent successfully",
-    mfaCode,
-  });
+
+  try {
+    const response = await sendVerificationCode(phoneNumber);
+    if (response.status === "pending" || response.status === "approved") {
+      RequestResponse(res, 200, true, "MFA code sent successfully");
+    } else {
+      console.error("[MFA SEND ERROR]", {
+        phoneNumber,
+        error: response,
+      });
+      RequestResponse(res, 500, false, "Failed to send MFA code");
+    }
+  } catch (error) {
+    console.error("[MFA SEND ERROR]", {
+      phoneNumber,
+      error: error instanceof Error ? error.message : error,
+    });
+    RequestResponse(res, 500, false, "Error sending MFA code");
+  }
 };
 
-export const verifyMFACode = (req: Request, res: Response) => {
+// Controller to verify the MFA code entered by the user
+export const verifyOTP = async (req: Request, res: Response) => {
   const { phoneNumber, mfaCode } = req.body || {};
-  if (!phoneNumber || !mfaCode) {
-    res.status(400).json({ message: "Phone number and MFA code are required" });
+  if (!validatePhoneNumber(phoneNumber)) {
+    RequestResponse(
+      res,
+      400,
+      false,
+      "Invalid phone number format or phone number"
+    );
     return;
   }
-  // Simulate MFA code verification
-  if (mfaCode === "123456") {
-    res.status(200).json({ message: "MFA code verified successfully" });
+  if (!validateMFACode(mfaCode)) {
+    RequestResponse(res, 400, false, "Invalid MFA code format or MFA code");
     return;
   }
-  res.status(401).json({ message: "Invalid MFA code" });
+
+  try {
+    const verificationResult = await validateVerificationCode(
+      phoneNumber,
+      mfaCode
+    );
+    const textResponseStatus = verificationResult.status;
+    if (textResponseStatus !== "approved") {
+      RequestResponse(res, 401, false, "Incorrect MFA code");
+      return;
+    } else {
+      const bearerToken = generateToken(phoneNumber);
+      RequestResponse(res, 200, true, "MFA code verified successfully", {
+        token: bearerToken,
+      } as AuthenticationResponse);
+      return;
+    }
+  } catch (error) {
+    console.error("[MFA VERIFY ERROR]", {
+      phoneNumber,
+      error: error instanceof Error ? error.message : error,
+    });
+    RequestResponse(res, 500, false, "Error verifying MFA code");
+    return;
+  }
 };

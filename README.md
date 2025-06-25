@@ -56,13 +56,13 @@ GET /rally-api/invite/12345
 
 ### 📲 Send MFA Code
 
-**POST** `/rally-api/auth/sendmfa`
+**POST** `/rally-api/auth/otp/send`
 
 **Request Body:**
 
 ```json
 {
-  "phoneNumber": "911"
+  "phoneNumber": "+12024567041"
 }
 ```
 
@@ -70,13 +70,13 @@ GET /rally-api/invite/12345
 
 ### 🔐 Login with MFA
 
-**POST** `/rally-api/auth/login`
+**POST** `/rally-api/auth/otp/verify`
 
 **Request Body:**
 
 ```json
 {
-  "phoneNumber": "2024567041",
+  "phoneNumber": "+12024567041",
   "mfaCode": "123321"
 }
 ```
