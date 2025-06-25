@@ -3,12 +3,13 @@ import rateLimit from "express-rate-limit";
 import { config } from "../../config/config";
 import { sendOTP, verifyOTP } from "../../controllers/auth/authController";
 import { RequestResponse } from "../../utils/apiResponse";
+import { validateRequestSchemaWithZod } from "../../middlewares/validateRequestSchemaWithZod";
+import {
+  sendOTPBodySchema,
+  verifyOTPBodySchema,
+} from "../../schemas/authRequestSchemas";
 
-// Initialize router
 const router = Router();
-
-// Apply rate limiting to authentication routes
-// This should help us mitigate brute-force attacks
 const apiLimiter = rateLimit({
   windowMs: config.authRateLimiting.windowMs,
   max: config.authRateLimiting.maxRequests,
@@ -22,12 +23,18 @@ const apiLimiter = rateLimit({
   },
 });
 
-// Define routes
-// Both routes are POST requests to force parameters to be sent in the body
-// rather than the URL, which is more secure for sensitive data
-router.post("/otp/send", apiLimiter, sendOTP);
+router.post(
+  "/otp/send",
+  apiLimiter,
+  validateRequestSchemaWithZod(sendOTPBodySchema, "body"),
+  sendOTP
+);
 
-// Route to verify OTP and issue JWT token upon successful verification
-router.post("/otp/verify", apiLimiter, verifyOTP);
+router.post(
+  "/otp/verify",
+  apiLimiter,
+  validateRequestSchemaWithZod(verifyOTPBodySchema, "body"),
+  verifyOTP
+);
 
 export default router;

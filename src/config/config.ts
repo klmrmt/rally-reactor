@@ -12,8 +12,16 @@ export const config = {
   },
   // JWT secret for signing tokens
   jwtSecret: process.env.JWT_SECRET || "",
+
+  // Rate limiting configuration for authentication routes
   authRateLimiting: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 10, // limit each IP to 10 requests per windowMs
+  },
+
+  // Rate limiting configuration for room  routes
+  inviteRateLimiting: {
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 5, // limit each IP to 5 requests per windowMs
   },
 };

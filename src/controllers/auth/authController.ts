@@ -8,24 +8,10 @@ import {
   RequestResponse,
 } from "../../utils/apiResponse";
 import { generateToken } from "../../auth/jwt/jwt";
-import {
-  validateMFACode,
-  validatePhoneNumber,
-} from "../../utils/verifyAuthRequests";
 
 // Controller to create and send MFA code via SMS
 export const sendOTP = async (req: Request, res: Response) => {
   const { phoneNumber } = req.body || {};
-  if (!validatePhoneNumber(phoneNumber)) {
-    RequestResponse(
-      res,
-      400,
-      false,
-      "Invalid phone number format or phone number"
-    );
-    return;
-  }
-
   try {
     const response = await sendVerificationCode(phoneNumber);
     if (response.status === "pending" || response.status === "approved") {
@@ -49,20 +35,6 @@ export const sendOTP = async (req: Request, res: Response) => {
 // Controller to verify the MFA code entered by the user
 export const verifyOTP = async (req: Request, res: Response) => {
   const { phoneNumber, mfaCode } = req.body || {};
-  if (!validatePhoneNumber(phoneNumber)) {
-    RequestResponse(
-      res,
-      400,
-      false,
-      "Invalid phone number format or phone number"
-    );
-    return;
-  }
-  if (!validateMFACode(mfaCode)) {
-    RequestResponse(res, 400, false, "Invalid MFA code format or MFA code");
-    return;
-  }
-
   try {
     const verificationResult = await validateVerificationCode(
       phoneNumber,
