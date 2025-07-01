@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: kyle
+      POSTGRES_DB: rally-db
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data 
+ 
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+ 
+volumes:
+  pgdata:
