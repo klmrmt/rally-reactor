@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import routes from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
+import healthRouter from "./routes/health/healthRouter";
 
 const app = express();
 // Middleware to parse JSON bodies
@@ -18,4 +19,6 @@ app.use(morgan("dev"));
 app.use("/rally-api", routes);
 app.use(errorHandler);
 
+
+app.use("/health", healthRouter);
 export default app;
