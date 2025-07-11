@@ -24,4 +24,8 @@ export const config = {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5, // limit each IP to 5 requests per windowMs
   },
+
+  database: {
+    connectionUrl: process.env.DATABASE_URL || "",
+  },
 };

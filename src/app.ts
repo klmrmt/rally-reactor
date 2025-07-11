@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import routes from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
+import healthRouter from "./routes/health/healthRouter";
 
 const app = express();
 // Middleware to parse JSON bodies
