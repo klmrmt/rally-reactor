@@ -19,6 +19,4 @@ app.use(morgan("dev"));
 app.use("/rally-api", routes);
 app.use(errorHandler);
 
-
-app.use("/health", healthRouter);
 export default app;
