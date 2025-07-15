@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 
 export const getInvite = (req: Request, res: Response) => {
   const inviteId = req.query.inviteId;
+  // const user = (req as any).user; // Assuming user info is attached by authenticateToken middleware. This is how we will get the userId
+
   // Fetch Data Simulation
   res.json({
     message: `Invite details for ID ${inviteId}`,
