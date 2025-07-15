@@ -13,6 +13,9 @@ export const config = {
   // JWT secret for signing tokens
   jwtSecret: process.env.JWT_SECRET || "",
 
+  // Encryption Key for phone number security
+  phoneEncryptionKey: process.env.PHONE_ENCRYPTION_KEY || "",
+
   // Rate limiting configuration for authentication routes
   authRateLimiting: {
     windowMs: 15 * 60 * 1000, // 15 minutes
