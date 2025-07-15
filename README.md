@@ -40,11 +40,27 @@ npm start
 }
 ```
 
+**Request Headers:**
+
+```json
+{
+  "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiIrMTIyNDYwMDEyNzgiLCJpYXQiOjE3NTI1NDkzMTgsImV4cCI6MTc1MjU1MjkxOH0.8KUmgm_mfJKje5996aiIxyLSkyfTKRasRZWzGO2X6LY"
+}
+```
+
 ---
 
 ### 🔍 Get Invite by ID
 
 **GET** `/rally-api/invite/:inviteId`
+
+**Request Headers:**
+
+```json
+{
+  "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiIrMTIyNDYwMDEyNzgiLCJpYXQiOjE3NTI1NDkzMTgsImV4cCI6MTc1MjU1MjkxOH0.8KUmgm_mfJKje5996aiIxyLSkyfTKRasRZWzGO2X6LY"
+}
+```
 
 Example:
 
