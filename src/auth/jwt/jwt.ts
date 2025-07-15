@@ -1,9 +1,9 @@
 import { config } from "../../config/config";
 import jwt from "jsonwebtoken";
 
-// Function to generate a JWT token for a given phone number
-export const generateToken = (phoneNumber: string) => {
-  const token = jwt.sign({ phoneNumber }, config.jwtSecret, {
+// Function to generate a JWT token for a given userId
+export const generateToken = (userID: string) => {
+  const token = jwt.sign({ userID }, config.jwtSecret, {
     expiresIn: "1h",
   });
   return token;

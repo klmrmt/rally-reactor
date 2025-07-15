@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
+import { generateToken } from "../../auth/jwt/jwt";
 import {
   sendVerificationCode,
   validateVerificationCode,
 } from "../../auth/twilio/twilio";
+import { createUser, getUserIdByPhoneHash } from "../../models/UserModel";
 import {
   AuthenticationResponse,
   RequestResponse,
 } from "../../utils/apiResponse";
-import { generateToken } from "../../auth/jwt/jwt";
+import { encryptPhoneNumber, hashPhoneNumber } from "../../utils/security";
 
 // Controller to create and send MFA code via SMS
 export const sendOTP = async (req: Request, res: Response) => {
@@ -32,6 +34,25 @@ export const sendOTP = async (req: Request, res: Response) => {
   }
 };
 
+// Helper function to return a user ID if the user exists, or create a new user if not
+// This UUID will be added to the JWT token payload
+const getUserId = async (phoneNumber: string) => {
+  const hashedPhoneNumber = hashPhoneNumber(phoneNumber);
+  const existingUserId = await getUserIdByPhoneHash(hashedPhoneNumber);
+  if (existingUserId) {
+    return existingUserId;
+  }
+  const encryptedPhoneNumber = encryptPhoneNumber(phoneNumber);
+  const createdUser = await createUser(
+    hashedPhoneNumber,
+    encryptedPhoneNumber,
+    undefined, // profilePictureUrl
+    undefined, // bio
+    undefined // displayName
+  );
+  return createdUser.user_id;
+};
+
 // Controller to verify the MFA code entered by the user
 export const verifyOTP = async (req: Request, res: Response) => {
   const { phoneNumber, mfaCode } = req.body || {};
@@ -45,6 +66,12 @@ export const verifyOTP = async (req: Request, res: Response) => {
       RequestResponse(res, 401, false, "Incorrect MFA code");
       return;
     } else {
+      let userId: string | undefined = await getUserId(phoneNumber);
+      if (!userId) {
+        RequestResponse(res, 500, false, "Failed to retrieve or create user");
+        return;
+      }
+
       const bearerToken = generateToken(phoneNumber);
       RequestResponse(res, 200, true, "MFA code verified successfully", {
         token: bearerToken,
@@ -54,7 +81,7 @@ export const verifyOTP = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("[MFA VERIFY ERROR]", {
       phoneNumber,
-      error: error instanceof Error ? error.message : error,
+      error: error,
     });
     RequestResponse(res, 500, false, "Error verifying MFA code");
     return;
