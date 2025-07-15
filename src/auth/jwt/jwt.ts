@@ -9,7 +9,6 @@ export const generateToken = (userID: string) => {
   return token;
 };
 
-// Function to verify a given JWT token
 // Function to verify a given JWT token and return the decoded payload or null
 export const verifyToken = (token: string) => {
   try {
