@@ -13,6 +13,11 @@ export const config = {
   // JWT secret for signing tokens
   jwtSecret: process.env.JWT_SECRET || "",
 
+  // Encryption Key for phone number security
+  // Must be a 32-byte hex string for AES-256
+  phoneEncryptionKey: process.env.PHONE_ENCRYPTION_KEY || "",
+  ivLength: 16,
+
   // Rate limiting configuration for authentication routes
   authRateLimiting: {
     windowMs: 15 * 60 * 1000, // 15 minutes
