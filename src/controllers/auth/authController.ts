@@ -72,7 +72,8 @@ export const verifyOTP = async (req: Request, res: Response) => {
         return;
       }
 
-      const bearerToken = generateToken(phoneNumber);
+      // Generate JWT token with user ID
+      const bearerToken = generateToken(userId);
       RequestResponse(res, 200, true, "MFA code verified successfully", {
         token: bearerToken,
       } as AuthenticationResponse);

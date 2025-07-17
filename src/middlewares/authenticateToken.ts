@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../auth/jwt/jwt";
+import { AuthenticatedRequest } from "../auth/types";
 
 export const authenticateToken = (
   req: Request,
@@ -22,8 +23,7 @@ export const authenticateToken = (
         .json({ success: false, message: "Invalid or expired token" });
       return;
     }
-    // Attach user info to req for downstream use
-    (req as any).user = decoded;
+    (req as AuthenticatedRequest).user = decoded;
     next();
   } catch (err) {
     res
