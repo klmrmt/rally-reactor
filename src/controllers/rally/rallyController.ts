@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../../auth/types";
 import { createRally, getRallyByRallyHexId } from "../../models/RallyModel";
+import { RequestResponse } from "../../utils/apiResponse";
 import {
   GetRallyType,
   CreateRallyType,
@@ -17,21 +18,17 @@ export const getRally = async (
     const result = await getRallyByRallyHexId(rallyId);
 
     if (!result) {
-      res.status(404).json({ success: false, error: "Rally not found" });
+      RequestResponse(res, 404, false, "Rally not found");
       return;
     }
 
-    res.status(200).json({
-      success: true,
-      message: `Rally details for ID ${rallyId}`,
-      data: {
-        ...result,
-      },
+    RequestResponse(res, 200, true, `Rally details for ID ${rallyId}`, {
+      ...result,
     });
     return;
   } catch (err) {
     console.error("Error fetching Rally:", err);
-    res.status(500).json({ success: false, error: "Something went wrong" });
+    RequestResponse(res, 500, false, "Something went wrong");
     return;
   }
 };
@@ -42,7 +39,7 @@ export const postRally = async (
   res: Response
 ): Promise<void> => {
   if (!req.user?.user_id) {
-    res.status(401).json({ success: false, error: "Unauthorized" });
+    RequestResponse(res, 401, false, "Unauthorized");
     return;
   }
 
@@ -56,17 +53,13 @@ export const postRally = async (
       new Date(hangoutDateTime)
     );
 
-    res.status(200).json({
-      success: true,
-      message: `Rally created for ${groupName}`,
-      data: {
-        ...createdRally,
-      },
+    RequestResponse(res, 201, true, `Rally created for ${groupName}`, {
+      ...createdRally,
     });
     return;
   } catch (error) {
     console.error("Error creating rally:", error);
-    res.status(500).json({ success: false, error: "Failed to create rally" });
+    RequestResponse(res, 500, false, "Failed to create rally");
     return;
   }
 };
