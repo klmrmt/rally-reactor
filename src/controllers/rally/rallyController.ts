@@ -1,41 +1,41 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../../auth/types";
-import { createRally, getRallyByInviteHexId } from "../../models/RallyModel";
+import { createRally, getRallyByRallyHexId } from "../../models/RallyModel";
 import {
-  GetInviteQuery,
-  PostInviteBody,
-} from "../../schemas/inviteRequestSchemas";
+  GetRallyType,
+  CreateRallyType,
+} from "../../schemas/rallyRequestSchemas";
 
-export const getInvite = async (
-  req: AuthenticatedRequest & { query?: GetInviteQuery },
+export const getRally = async (
+  req: AuthenticatedRequest & { query?: GetRallyType },
   res: Response
 ) => {
-  const inviteId = req.query.inviteId;
+  const rallyId = req.query.rallyId;
 
   try {
-    const result = await getRallyByInviteHexId(inviteId);
+    const result = await getRallyByRallyHexId(rallyId);
 
     if (!result) {
-      res.status(404).json({ error: "Invite not found" });
+      res.status(404).json({ error: "Rally not found" });
       return;
     }
 
     res.status(200).json({
-      message: `Invite details for ID ${inviteId}`,
+      message: `Rally details for ID ${rallyId}`,
       data: {
         ...result,
       },
     });
     return;
   } catch (err) {
-    console.error("Error fetching invite:", err);
+    console.error("Error fetching Rally:", err);
     res.status(500).json({ error: "Something went wrong" });
     return;
   }
 };
 
-export const postInvite = async (
-  req: AuthenticatedRequest & { body: PostInviteBody },
+export const postRally = async (
+  req: AuthenticatedRequest & { body: CreateRallyType },
   res: Response
 ): Promise<void> => {
   if (!req.user?.user_id) {
@@ -54,7 +54,7 @@ export const postInvite = async (
     );
 
     res.status(201).json({
-      message: `Invite created for ${groupName}`,
+      message: `Rally created for ${groupName}`,
       data: {
         ...createdRally,
       },
@@ -62,7 +62,7 @@ export const postInvite = async (
     return;
   } catch (error) {
     console.error("Error creating rally:", error);
-    res.status(500).json({ error: "Failed to create invite" });
+    res.status(500).json({ error: "Failed to create rally" });
     return;
   }
 };

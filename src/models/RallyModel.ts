@@ -7,11 +7,11 @@ export type Rally = {
   scheduledTime: Date;
   callToAction: string;
   createdAt: Date;
-  inviteExpiresAt: Date;
-  inviteHexId: string;
+  expiresAt: Date;
+  hexId: string;
 };
 
-const generateInviteId = (): string => {
+const generateHexId = (): string => {
   const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let result = "";
   for (let i = 0; i < 6; i++) {
@@ -20,7 +20,7 @@ const generateInviteId = (): string => {
   return result;
 };
 
-const MAX_TRIES = config.inviteCreation.maxTries || 5;
+const MAX_TRIES = config.rallyCreation.maxTries || 5;
 
 export const createRally = async (
   userId: string,
@@ -31,7 +31,7 @@ export const createRally = async (
   let lastError;
 
   for (let attempt = 0; attempt < MAX_TRIES; attempt++) {
-    const inviteHexId = generateInviteId();
+    const rallyHexId = generateHexId();
 
     const query = `
       INSERT INTO rallies (
@@ -40,12 +40,12 @@ export const createRally = async (
         scheduled_time,
         call_to_action,
         created_at,
-        invite_expires_at,
-        invite_hex_id
+        expires_at,
+        hex_id
       ) VALUES (
         $1, $2, $3, $4, NOW(), $5, $6
       )
-      RETURNING id, group_name, scheduled_time, call_to_action, created_at, invite_expires_at, invite_hex_id
+      RETURNING id, group_name, scheduled_time, call_to_action, created_at, expires_at, hex_id
     `;
 
     const values = [
@@ -54,7 +54,7 @@ export const createRally = async (
       hangoutDateTime,
       callToRally,
       hangoutDateTime,
-      inviteHexId,
+      rallyHexId,
     ];
 
     try {
@@ -65,12 +65,12 @@ export const createRally = async (
         scheduledTime: result.rows[0].scheduled_time,
         callToAction: result.rows[0].call_to_action,
         createdAt: result.rows[0].created_at,
-        inviteExpiresAt: result.rows[0].invite_expires_at,
-        inviteHexId: result.rows[0].invite_hex_id,
+        expiresAt: result.rows[0].expires_at,
+        hexId: result.rows[0].hex_id,
       };
     } catch (err: any) {
       // Check for unique constraint violation
-      if (err.code === "23505" && err.detail?.includes("invite_hex_id")) {
+      if (err.code === "23505" && err.detail?.includes("hex_id")) {
         lastError = err;
         continue; // Try again with a new code
       }
@@ -78,23 +78,23 @@ export const createRally = async (
     }
   }
   throw new Error(
-    "Failed to generate a unique invite code after multiple attempts."
+    "Failed to generate a unique hex code after multiple attempts."
   );
 };
 
-export const getRallyByInviteHexId = async (
-  inviteHexId: string
+export const getRallyByRallyHexId = async (
+  rallyHexId: string
 ): Promise<Rally | null> => {
   const query = `
-        SELECT id, group_name, scheduled_time, call_to_action, created_at, invite_expires_at, invite_hex_id
+        SELECT id, group_name, scheduled_time, call_to_action, created_at, expires_at, hex_id
         FROM rallies
-        WHERE invite_hex_id = $1
+        WHERE hex_id = $1
     `;
-  const values = [inviteHexId];
+  const values = [rallyHexId];
 
   const result = await db.query(query, values);
   if (result.rows.length === 0) {
-    return null; // No rally found with this invite ID
+    return null; // No rally found with this ID
   }
 
   const row = result.rows[0];
@@ -104,7 +104,7 @@ export const getRallyByInviteHexId = async (
     scheduledTime: row.scheduled_time,
     callToAction: row.call_to_action,
     createdAt: row.created_at,
-    inviteExpiresAt: row.invite_expires_at,
-    inviteHexId: row.invite_hex_id,
+    expiresAt: row.expires_at,
+    hexId: row.hex_id,
   };
 };

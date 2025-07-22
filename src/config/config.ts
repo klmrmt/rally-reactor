@@ -25,13 +25,13 @@ export const config = {
   },
 
   // Rate limiting configuration for room  routes
-  inviteRateLimiting: {
+  rallyRateLimiting: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5, // limit each IP to 5 requests per windowMs
   },
 
-  // Invite Creation
-  inviteCreation: {
+  // Rally Creation
+  rallyCreation: {
     maxTries: 5,
   },
 

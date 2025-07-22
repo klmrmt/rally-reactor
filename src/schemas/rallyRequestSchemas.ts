@@ -1,16 +1,16 @@
 import { z } from "zod";
 
 // For GET /invite?inviteId=...
-export const getInviteQuerySchema = z.object({
-  inviteId: z
+export const getRallySchema = z.object({
+  rallyId: z
     .string()
     .length(6, { message: "Invite ID must be exactly 6 characters" })
     .regex(/^[A-Z0-9]{6}$/, { message: "Invite ID must be alphanumeric" }),
 });
-export type GetInviteQuery = z.infer<typeof getInviteQuerySchema>;
+export type GetRallyType = z.infer<typeof getRallySchema>;
 
 // For POST /invite/create with { groupName }
-export const postInviteBodySchema = z.object({
+export const createRallySchema = z.object({
   groupName: z.string().nonempty({ message: "Name is required" }),
   callToRally: z
     .string()
@@ -25,4 +25,4 @@ export const postInviteBodySchema = z.object({
       message: "Hangout date and time must be in the future.",
     }),
 });
-export type PostInviteBody = z.infer<typeof postInviteBodySchema>;
+export type CreateRallyType = z.infer<typeof createRallySchema>;
