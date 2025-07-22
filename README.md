@@ -28,15 +28,17 @@ npm start
 
 ## 📡 API Endpoints (Work in Progress)
 
-### ➕ Create Invite
+### ➕ Create Rally
 
-**POST** `/rally-api/invite`
+**POST** `/rally-api/rally/create`
 
 **Request Body:**
 
 ```json
 {
-  "groupName": "fakeGroupName"
+  "groupName": "Friday Night Crew",
+  "callToRally": "Bring your own snacks!",
+  "hangoutDateTime": "2025-08-01T19:00:00.000Z"
 }
 ```
 
@@ -50,9 +52,9 @@ npm start
 
 ---
 
-### 🔍 Get Invite by ID
+### 🔍 Get Rally by ID
 
-**GET** `/rally-api/invite/:inviteId`
+**GET** `/rally-api/rally/:rallyId`
 
 **Request Headers:**
 
@@ -65,7 +67,7 @@ npm start
 Example:
 
 ```
-GET /rally-api/invite/12345
+GET /rally-api/rally/123456
 ```
 
 ---
