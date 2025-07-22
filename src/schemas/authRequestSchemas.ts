@@ -21,3 +21,6 @@ export const verifyOTPBodySchema = z.object({
   phoneNumber: phoneNumberSchema,
   mfaCode: mfaCodeSchema,
 });
+
+export type SendOTPBody = z.infer<typeof sendOTPBodySchema>;
+export type VerifyOTPBody = z.infer<typeof verifyOTPBodySchema>;

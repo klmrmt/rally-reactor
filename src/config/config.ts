@@ -30,6 +30,11 @@ export const config = {
     maxRequests: 5, // limit each IP to 5 requests per windowMs
   },
 
+  // Invite Creation
+  inviteCreation: {
+    maxTries: 5,
+  },
+
   database: {
     connectionUrl: process.env.DATABASE_URL || "",
   },

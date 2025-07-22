@@ -10,9 +10,13 @@ import {
   RequestResponse,
 } from "../../utils/apiResponse";
 import { encryptPhoneNumber, hashPhoneNumber } from "../../utils/security";
+import { SendOTPBody, VerifyOTPBody } from "../../schemas/authRequestSchemas";
 
 // Controller to create and send MFA code via SMS
-export const sendOTP = async (req: Request, res: Response) => {
+export const sendOTP = async (
+  req: Request & { body: SendOTPBody },
+  res: Response
+) => {
   const { phoneNumber } = req.body || {};
   try {
     const response = await sendVerificationCode(phoneNumber);
@@ -54,7 +58,10 @@ const getUserId = async (phoneNumber: string) => {
 };
 
 // Controller to verify the MFA code entered by the user
-export const verifyOTP = async (req: Request, res: Response) => {
+export const verifyOTP = async (
+  req: Request & { body: VerifyOTPBody },
+  res: Response
+) => {
   const { phoneNumber, mfaCode } = req.body || {};
   try {
     const verificationResult = await validateVerificationCode(
