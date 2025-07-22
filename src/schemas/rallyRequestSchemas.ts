@@ -1,6 +1,10 @@
+/**
+ * This file contains schemas for creating and retrieving rally invites using Zod.
+ * It defines the structure and validation rules for the request bodies
+ * for creating a rally and retrieving rally details.
+ */
 import { z } from "zod";
 
-// For GET /invite?inviteId=...
 export const getRallySchema = z.object({
   rallyId: z
     .string()
@@ -9,7 +13,6 @@ export const getRallySchema = z.object({
 });
 export type GetRallyType = z.infer<typeof getRallySchema>;
 
-// For POST /invite/create with { groupName }
 export const createRallySchema = z.object({
   groupName: z.string().nonempty({ message: "Name is required" }),
   callToRally: z

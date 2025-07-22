@@ -6,6 +6,7 @@ import {
   CreateRallyType,
 } from "../../schemas/rallyRequestSchemas";
 
+// This getRally function retrieves rally details by its unique hex ID.
 export const getRally = async (
   req: AuthenticatedRequest & { query?: GetRallyType },
   res: Response
@@ -16,11 +17,12 @@ export const getRally = async (
     const result = await getRallyByRallyHexId(rallyId);
 
     if (!result) {
-      res.status(404).json({ error: "Rally not found" });
+      res.status(404).json({ success: false, error: "Rally not found" });
       return;
     }
 
     res.status(200).json({
+      success: true,
       message: `Rally details for ID ${rallyId}`,
       data: {
         ...result,
@@ -29,17 +31,18 @@ export const getRally = async (
     return;
   } catch (err) {
     console.error("Error fetching Rally:", err);
-    res.status(500).json({ error: "Something went wrong" });
+    res.status(500).json({ success: false, error: "Something went wrong" });
     return;
   }
 };
 
+// This postRally function creates a new rally with the provided details.
 export const postRally = async (
   req: AuthenticatedRequest & { body: CreateRallyType },
   res: Response
 ): Promise<void> => {
   if (!req.user?.user_id) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ success: false, error: "Unauthorized" });
     return;
   }
 
@@ -53,7 +56,8 @@ export const postRally = async (
       new Date(hangoutDateTime)
     );
 
-    res.status(201).json({
+    res.status(200).json({
+      success: true,
       message: `Rally created for ${groupName}`,
       data: {
         ...createdRally,
@@ -62,7 +66,7 @@ export const postRally = async (
     return;
   } catch (error) {
     console.error("Error creating rally:", error);
-    res.status(500).json({ error: "Failed to create rally" });
+    res.status(500).json({ success: false, error: "Failed to create rally" });
     return;
   }
 };

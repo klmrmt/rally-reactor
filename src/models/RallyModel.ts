@@ -11,6 +11,9 @@ export type Rally = {
   hexId: string;
 };
 
+// Function to generate a unique hex code for rally IDs
+// This generates a 6-character alphanumeric string
+// This is used to create unique rally identifiers for URLs
 const generateHexId = (): string => {
   const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let result = "";
@@ -22,6 +25,11 @@ const generateHexId = (): string => {
 
 const MAX_TRIES = config.rallyCreation.maxTries || 5;
 
+/**
+ * Creates a new rally in the database.
+ * Retries up to MAX_TRIES times if a unique hex code conflict occurs.
+ * Returns the created rally object.
+ */
 export const createRally = async (
   userId: string,
   groupName: string,
@@ -82,6 +90,10 @@ export const createRally = async (
   );
 };
 
+/**
+ * Retrieves a rally by its unique hex ID.
+ * Returns the rally object if found, or null if not found.
+ */
 export const getRallyByRallyHexId = async (
   rallyHexId: string
 ): Promise<Rally | null> => {
@@ -94,7 +106,7 @@ export const getRallyByRallyHexId = async (
 
   const result = await db.query(query, values);
   if (result.rows.length === 0) {
-    return null; // No rally found with this ID
+    return null;
   }
 
   const row = result.rows[0];
