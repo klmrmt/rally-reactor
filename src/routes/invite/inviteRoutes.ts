@@ -3,6 +3,7 @@ import rateLimit from "express-rate-limit";
 import {
   getInvite,
   postInvite,
+  postInviteUser,
 } from "../../controllers/invite/inviteController";
 import { authenticateToken } from "../../middlewares/authenticateToken";
 import { config } from "../../config/config";
@@ -38,5 +39,7 @@ router.post(
   validateRequestSchemaWithZod(postInviteBodySchema, "body"),
   postInvite
 );
+
+router.post('/user', postInviteUser);
 
 export default router;

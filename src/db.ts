@@ -13,3 +13,5 @@ console.log("✅ Using SSL config:", {
 });
 
 export default pool;
+
+// Attach pool to app in server.ts or app.ts for req.app.get('db') usage

@@ -5,8 +5,10 @@ import morgan from "morgan";
 import routes from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import healthRouter from "./routes/health/healthRouter";
+import pool from "./db";
 
 const app = express();
+app.set('db', pool);
 // Middleware to parse JSON bodies
 app.use(express.json());
 // Use Helmet to secure Express apps by setting various HTTP headers
