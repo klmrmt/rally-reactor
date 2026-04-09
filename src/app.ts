@@ -5,15 +5,18 @@ import morgan from "morgan";
 import routes from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import healthRouter from "./routes/health/healthRouter";
+import { config } from "./config/config";
 
 const app = express();
-// Middleware to parse JSON bodies
-app.use(express.json());
-// Use Helmet to secure Express apps by setting various HTTP headers
+
+app.use(express.json({ limit: "100kb" }));
 app.use(helmet());
-// Enable CORS for all routes
-app.use(cors());
-// Use Morgan for logging HTTP requests
+app.use(
+  cors({
+    origin: process.env.NODE_ENV === "production" ? config.clientUrl : true,
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 
 app.use("/rally-api", routes);

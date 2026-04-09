@@ -4,8 +4,8 @@ import { JwtPayload } from "../types";
 
 // Function to generate a JWT token for a given userId
 export const generateToken = (userID: string): string => {
-  const token = jwt.sign(userID, config.jwtSecret, {
-    expiresIn: "1h",
+  const token = jwt.sign({ user_id: userID }, config.jwtSecret, {
+    expiresIn: "30d",
   });
   return token;
 };

@@ -4,7 +4,7 @@ import {
   sendVerificationCode,
   validateVerificationCode,
 } from "../../auth/twilio/twilio";
-import { createUser, getUserIdByPhoneHash } from "../../models/UserModel";
+import { createUser, getUserIdByPhoneHash, getUserFullById } from "../../models/UserModel";
 import {
   AuthenticationResponse,
   RequestResponse,
@@ -12,7 +12,6 @@ import {
 import { encryptPhoneNumber, hashPhoneNumber } from "../../utils/security";
 import { SendOTPBody, VerifyOTPBody } from "../../schemas/authRequestSchemas";
 
-// Controller to create and send MFA code via SMS
 export const sendOTP = async (
   req: Request & { body: SendOTPBody },
   res: Response
@@ -38,26 +37,25 @@ export const sendOTP = async (
   }
 };
 
-// Helper function to return a user ID if the user exists, or create a new user if not
-// This UUID will be added to the JWT token payload
-const getUserId = async (phoneNumber: string) => {
+const getOrCreateUser = async (phoneNumber: string) => {
   const hashedPhoneNumber = hashPhoneNumber(phoneNumber);
-  const existingUserId = await getUserIdByPhoneHash(hashedPhoneNumber);
-  if (existingUserId) {
-    return existingUserId;
+  const existing = await getUserIdByPhoneHash(hashedPhoneNumber);
+  if (existing) {
+    return getUserFullById(existing.user_id);
   }
+  const lastFour = phoneNumber.slice(-4);
+  const defaultName = `User ${lastFour}`;
   const encryptedPhoneNumber = encryptPhoneNumber(phoneNumber);
-  const createdUser = await createUser(
+  const created = await createUser(
     hashedPhoneNumber,
     encryptedPhoneNumber,
-    undefined, // profilePictureUrl
-    undefined, // bio
-    undefined // displayName
+    undefined,
+    undefined,
+    defaultName
   );
-  return createdUser.user_id;
+  return getUserFullById(created.user_id);
 };
 
-// Controller to verify the MFA code entered by the user
 export const verifyOTP = async (
   req: Request & { body: VerifyOTPBody },
   res: Response
@@ -68,30 +66,30 @@ export const verifyOTP = async (
       phoneNumber,
       mfaCode
     );
-    const textResponseStatus = verificationResult.status;
-    if (textResponseStatus !== "approved") {
+    if (verificationResult.status !== "approved") {
       RequestResponse(res, 401, false, "Incorrect MFA code");
       return;
-    } else {
-      let userId: string | undefined = await getUserId(phoneNumber);
-      if (!userId) {
-        RequestResponse(res, 500, false, "Failed to retrieve or create user");
-        return;
-      }
+    }
 
-      // Generate JWT token with user ID
-      const bearerToken = generateToken(userId);
-      RequestResponse(res, 200, true, "MFA code verified successfully", {
-        token: bearerToken,
-      } as AuthenticationResponse);
+    const user = await getOrCreateUser(phoneNumber);
+    if (!user) {
+      RequestResponse(res, 500, false, "Failed to retrieve or create user");
       return;
     }
+
+    const bearerToken = generateToken(user.userId);
+    RequestResponse(res, 200, true, "MFA code verified successfully", {
+      token: bearerToken,
+      user: {
+        userId: user.userId,
+        displayName: user.displayName,
+      },
+    } as AuthenticationResponse);
   } catch (error) {
     console.error("[MFA VERIFY ERROR]", {
       phoneNumber,
-      error: error,
+      error,
     });
     RequestResponse(res, 500, false, "Error verifying MFA code");
-    return;
   }
 };

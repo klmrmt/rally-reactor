@@ -8,6 +8,10 @@ export interface ApiResponse<T = undefined> {
 
 export type AuthenticationResponse = {
   token: string;
+  user: {
+    userId: string;
+    displayName: string | null;
+  };
 };
 
 // Helper function to send standardized API responses
