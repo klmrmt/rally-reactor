@@ -6,9 +6,11 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "lint": "eslint . --ext .ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "lint": "eslint src/",
     "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "migrate": "node-pg-migrate",
     "migrate:create": "node-pg-migrate create"
   },
@@ -27,11 +29,13 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "openai": "^6.33.0",
     "pg": "^8.16.3",
     "twilio": "^5.7.1",
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/helmet": "^0.0.48",
@@ -45,6 +49,8 @@
     "prettier": "^3.6.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.58.1",
+    "vitest": "^4.1.3"
   }
 }

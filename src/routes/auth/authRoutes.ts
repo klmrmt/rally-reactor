@@ -10,9 +10,12 @@ import {
 } from "../../schemas/authRequestSchemas";
 
 const router = Router();
+
+const isTest = process.env.NODE_ENV === "test";
+
 const apiLimiter = rateLimit({
   windowMs: config.authRateLimiting.windowMs,
-  max: config.authRateLimiting.maxRequests,
+  max: isTest ? 1000 : config.authRateLimiting.maxRequests,
   handler: (_req, res) => {
     RequestResponse(
       res,
