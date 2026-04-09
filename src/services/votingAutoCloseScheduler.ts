@@ -13,7 +13,7 @@ async function getExpiredVotingRallies(): Promise<Pick<Rally, "id" | "hexId" | "
       AND voting_closes_at <= NOW()
   `;
   const result = await db.query(query);
-  return result.rows.map((row) => ({
+  return result.rows.map((row: Record<string, any>) => ({
     id: row.id,
     hexId: row.hex_id,
     groupName: row.group_name,

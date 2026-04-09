@@ -55,7 +55,7 @@ export const getFeedbackByRallyId = async (
     ORDER BY created_at ASC
   `;
   const result = await db.query(query, [rallyId]);
-  return result.rows.map((row) => ({
+  return result.rows.map((row: Record<string, any>) => ({
     id: row.id,
     rallyId: row.rally_id,
     participantId: row.participant_id,

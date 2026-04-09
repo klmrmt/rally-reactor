@@ -122,7 +122,7 @@ export const getRalliesForUser = async (userId: string): Promise<RallySummary[]>
     ORDER BY r.id, r.scheduled_time DESC
   `;
   const result = await db.query(query, [userId]);
-  return result.rows.map((row) => ({
+  return result.rows.map((row: Record<string, any>) => ({
     id: row.id,
     hexId: row.hex_id,
     groupName: row.group_name,

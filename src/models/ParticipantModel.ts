@@ -39,7 +39,7 @@ export const getParticipantsByRallyId = async (
     ORDER BY joined_at ASC
   `;
   const result = await db.query(query, [rallyId]);
-  return result.rows.map((row) => ({
+  return result.rows.map((row: Record<string, any>) => ({
     id: row.id,
     rallyId: row.rally_id,
     userId: row.user_id,
@@ -108,7 +108,7 @@ export const getParticipantPhonesForRally = async (
       AND p.user_id IS NOT NULL
   `;
   const result = await db.query(query, [rallyId]);
-  return result.rows.map((row) => ({
+  return result.rows.map((row: Record<string, any>) => ({
     participantId: row.participant_id,
     encryptedPhoneNumber: row.encrypted_phone_number,
   }));

@@ -52,7 +52,7 @@ export const getVoteTallyByRallyId = async (
     ORDER BY count DESC
   `;
   const result = await db.query(query, [rallyId]);
-  return result.rows.map((row) => ({
+  return result.rows.map((row: Record<string, any>) => ({
     recommendationId: row.recommendation_id,
     count: parseInt(row.count, 10),
   }));

@@ -437,12 +437,12 @@ export const getRallyResult = async (
 };
 
 export const submitFeedback = async (
-  req: ParticipantRequest & { body: FeedbackType },
+  req: ParticipantRequest,
   res: Response
 ): Promise<void> => {
   const participant = req.participant!;
   const { hexId } = req.params;
-  const { liked, tags } = req.body;
+  const { liked, tags } = req.body as FeedbackType;
 
   try {
     const rally = await getRallyByRallyHexId(hexId);
@@ -485,12 +485,12 @@ export const submitFeedback = async (
 };
 
 export const selectWinner = async (
-  req: AuthenticatedRequest & { body: SelectWinnerType },
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { hexId } = req.params;
   const userId = req.user!.user_id;
-  const { recommendationId } = req.body;
+  const { recommendationId } = req.body as SelectWinnerType;
 
   try {
     const rally = await getRallyByRallyHexId(hexId);
