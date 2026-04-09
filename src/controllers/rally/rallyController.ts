@@ -121,7 +121,7 @@ export const patchRally = async (
     const updated = await updateRally(rally.id, req.user.user_id, {
       groupName,
       callToAction: callToRally,
-      scheduledTime: hangoutDateTime ? new Date(hangoutDateTime) : undefined,
+      scheduledTime: hangoutDateTime ? new Date(hangoutDateTime as string) : undefined,
       location: location !== undefined ? location : undefined,
       radiusMiles: radiusMiles !== undefined ? radiusMiles : undefined,
       latitude: latitude !== undefined ? latitude : undefined,
