@@ -4,6 +4,13 @@ import db from "./db";
 
 const MIGRATIONS_DIR = path.join(__dirname, "..", "migrations");
 
+function splitStatements(sql: string): string[] {
+  return sql
+    .split(/;\s*$/m)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
 export async function runMigrations(): Promise<void> {
   await db.query(`
     CREATE TABLE IF NOT EXISTS _migrations (
@@ -31,13 +38,24 @@ export async function runMigrations(): Promise<void> {
       await db.query(`INSERT INTO _migrations (name) VALUES ($1)`, [file]);
       console.log(`  ✓ ${file}`);
     } catch (err: any) {
-      if (
-        err.code === "42710" || // duplicate_object (constraint already exists)
-        err.code === "42701" || // duplicate_column
-        err.code === "42P07"    // duplicate_table
-      ) {
-        console.log(`  ✓ ${file} (already applied)`);
+      const IDEMPOTENT_CODES = ["42710", "42701", "42P07"];
+      if (IDEMPOTENT_CODES.includes(err.code)) {
+        console.log(`  ~ ${file} hit ${err.code}, running statements individually...`);
+        const stmts = splitStatements(sql);
+        for (const stmt of stmts) {
+          try {
+            await db.query(stmt);
+          } catch (stmtErr: any) {
+            if (IDEMPOTENT_CODES.includes(stmtErr.code)) {
+              console.log(`    (skipped: ${stmtErr.message})`);
+            } else {
+              console.error(`    statement failed: ${stmtErr.message}`);
+              throw stmtErr;
+            }
+          }
+        }
         await db.query(`INSERT INTO _migrations (name) VALUES ($1)`, [file]);
+        console.log(`  ✓ ${file} (applied with skips)`);
       } else {
         console.error(`  ✗ ${file} failed:`, err.message);
         throw err;

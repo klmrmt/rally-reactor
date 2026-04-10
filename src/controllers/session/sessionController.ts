@@ -190,8 +190,12 @@ export const submitConstraintVote = async (
     });
 
     RequestResponse(res, 201, true, "Vote submitted", { vote });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error submitting vote:", err);
+    if (err.code === "23503") {
+      RequestResponse(res, 400, false, "Participant not found — please rejoin the rally");
+      return;
+    }
     RequestResponse(res, 500, false, "Failed to submit vote");
   }
 };
