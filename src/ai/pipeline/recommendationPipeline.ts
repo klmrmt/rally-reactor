@@ -23,6 +23,9 @@ export const generateRecommendationsForRally = async (
 
   const groupSize = await getParticipantCount(rallyId);
   const location = rally.location || "Chicago, IL";
+  const coordinates = rally.latitude && rally.longitude
+    ? { lat: rally.latitude, lng: rally.longitude }
+    : undefined;
 
   const priceRange = budgetToGooglePriceRange(aggregatedVotes.budget);
   const keywords = vibeToSearchKeywords(aggregatedVotes.vibes);
@@ -37,6 +40,7 @@ export const generateRecommendationsForRally = async (
   for (const keyword of keywords.slice(0, 3)) {
     const places = await searchNearbyPlaces({
       location,
+      coordinates,
       radius,
       keyword,
       minPrice: priceRange.minPrice,
@@ -84,6 +88,8 @@ export const generateRecommendationsForRally = async (
         address: r.address ?? undefined,
       }))
     );
+  } else {
+    console.error(`No recommendations generated for rally ${rallyId} — ${uniqueCandidates.length} candidates found from Google Places`);
   }
 
   await updateRallyStatus(rallyId, "picking");

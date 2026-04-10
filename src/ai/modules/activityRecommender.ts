@@ -1,9 +1,13 @@
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { config } from "../../config/config";
 import { PlaceResult, priceLevelToSymbol, getPlaceMapsUrl, getPlacePhotoUrl } from "../services/googlePlaces";
 import { AggregatedVotes } from "../../models/ConstraintVoteModel";
 
-const openai = new OpenAI({ apiKey: config.openai.apiKey });
+const genAI = new GoogleGenerativeAI(config.gemini.apiKey);
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+});
 
 export type RankedRecommendation = {
   name: string;
@@ -67,22 +71,14 @@ Pick the best 5 venues for this group. For each, return a JSON array with object
 Return ONLY a JSON array, no markdown, no explanation outside the array.`;
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful group outing recommendation assistant. Always respond with valid JSON only.",
-        },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
+    const result = await model.generateContent({
+      systemInstruction: "You are a helpful group outing recommendation assistant. Always respond with valid JSON only.",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 
-    const content = response.choices[0]?.message?.content?.trim() || "[]";
-    const parsed = JSON.parse(content);
+    const content = result.response.text().trim();
+    const jsonStr = content.replace(/^```(?:json)?\s*/, "").replace(/```\s*$/, "");
+    const parsed = JSON.parse(jsonStr);
 
     return parsed
       .filter((item: any) => item.index !== undefined && candidates[item.index])
@@ -107,7 +103,7 @@ Return ONLY a JSON array, no markdown, no explanation outside the array.`;
         };
       });
   } catch (err) {
-    console.error("OpenAI ranking error:", err);
+    console.error("Gemini ranking error:", err);
     return candidates.slice(0, 5).map((c) => ({
       name: c.name,
       category: c.types[0] || "Venue",

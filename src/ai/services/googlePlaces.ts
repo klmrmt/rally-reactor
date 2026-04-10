@@ -14,6 +14,7 @@ export type PlaceResult = {
 
 type NearbySearchParams = {
   location: string;
+  coordinates?: { lat: number; lng: number };
   radius?: number;
   type?: string;
   keyword?: string;
@@ -24,9 +25,9 @@ type NearbySearchParams = {
 export const searchNearbyPlaces = async (
   params: NearbySearchParams
 ): Promise<PlaceResult[]> => {
-  const { location, radius = 5000, type, keyword, minPrice, maxPrice } = params;
+  const { location, coordinates, radius = 5000, type, keyword, minPrice, maxPrice } = params;
 
-  const geocoded = await geocodeLocation(location);
+  const geocoded = coordinates ?? await geocodeLocation(location);
   if (!geocoded) return [];
 
   const url = new URL(
